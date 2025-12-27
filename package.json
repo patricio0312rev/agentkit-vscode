@@ -1,0 +1,229 @@
+{
+  "name": "agentkit-vscode",
+  "displayName": "AgentKit - AI Agent Generator for Code Editors",
+  "description": "Visual interface to generate and manage AI agents for Visual Studio Code, Claude Code, Cursor, GitHub Copilot, and more. Setup AI agents with a beautiful GUI.",
+  "version": "0.1.0",
+  "publisher": "patricio0312rev",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "icon": "icon.png",
+  "categories": [
+    "Other",
+    "Snippets",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "ai",
+    "agents",
+    "claude",
+    "cursor",
+    "copilot",
+    "claude-code",
+    "ai-agents",
+    "agentkit",
+    "productivity",
+    "automation",
+    "sub-agents",
+    "ai-tools"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentkit.openPanel",
+        "title": "AgentKit: Open Agent Manager",
+        "icon": "$(robot)"
+      },
+      {
+        "command": "agentkit.quickInit",
+        "title": "AgentKit: Quick Setup",
+        "icon": "$(zap)"
+      },
+      {
+        "command": "agentkit.initAgents",
+        "title": "AgentKit: Initialize Agents"
+      },
+      {
+        "command": "agentkit.refreshAgents",
+        "title": "AgentKit: Refresh Installed Agents"
+      },
+      {
+        "command": "agentkit.updateAgents",
+        "title": "AgentKit: Update Agents"
+      },
+      {
+        "command": "agentkit.removeAgents",
+        "title": "AgentKit: Remove Agents"
+      },
+      {
+        "command": "agentkit.viewAgent",
+        "title": "AgentKit: View Agent Details"
+      },
+      {
+        "command": "agentkit.openSettings",
+        "title": "AgentKit: Open Settings"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentkit-sidebar",
+          "title": "AgentKit",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "views": {
+      "agentkit-sidebar": [
+        {
+          "id": "agentkit-installed",
+          "name": "Installed Agents",
+          "icon": "$(check)",
+          "contextualTitle": "AgentKit Installed"
+        },
+        {
+          "id": "agentkit-available",
+          "name": "Available Agents",
+          "icon": "$(cloud-download)",
+          "contextualTitle": "AgentKit Available"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "agentkit-installed",
+        "contents": "No agents installed yet.\n[Open Agent Manager](command:agentkit.openPanel)\n[Quick Setup](command:agentkit.quickInit)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "agentkit.openPanel",
+          "when": "view == agentkit-installed",
+          "group": "navigation"
+        },
+        {
+          "command": "agentkit.refreshAgents",
+          "when": "view == agentkit-installed",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "agentkit.openPanel"
+        },
+        {
+          "command": "agentkit.quickInit"
+        },
+        {
+          "command": "agentkit.initAgents"
+        },
+        {
+          "command": "agentkit.refreshAgents"
+        },
+        {
+          "command": "agentkit.updateAgents"
+        },
+        {
+          "command": "agentkit.removeAgents"
+        },
+        {
+          "command": "agentkit.viewAgent"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AgentKit",
+      "properties": {
+        "agentkit.defaultTool": {
+          "type": "string",
+          "enum": [
+            "cursor",
+            "claude-code",
+            "copilot",
+            "aider",
+            "universal"
+          ],
+          "enumDescriptions": [
+            "Cursor - @-mentions and multi-file support",
+            "Claude Code - Native sub-agent support",
+            "GitHub Copilot - copilot-instructions.md",
+            "Aider - conventions.md",
+            "Universal - Works with any tool"
+          ],
+          "default": "cursor",
+          "description": "Default AI tool for agent configuration"
+        },
+        "agentkit.defaultFolder": {
+          "type": "string",
+          "default": "",
+          "description": "Custom default folder name (leave empty for tool-specific defaults)"
+        },
+        "agentkit.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh agent list when files change"
+        },
+        "agentkit.showWelcome": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show welcome message on first use"
+        },
+        "agentkit.defaultDepartments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "design",
+              "engineering",
+              "marketing",
+              "product",
+              "project-management",
+              "studio-operations",
+              "testing"
+            ]
+          },
+          "default": [
+            "engineering",
+            "design"
+          ],
+          "description": "Default departments to select"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.x",
+    "@typescript-eslint/parser": "^6.x",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.x",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@patricio0312rev/agentkit": "^0.1.0"
+  },
+  "author": "Patricio Marroquin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patricio0312rev/agentkit-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/patricio0312rev/agentkit-vscode/issues"
+  },
+  "homepage": "https://github.com/patricio0312rev/agentkit-vscode#readme"
+}
