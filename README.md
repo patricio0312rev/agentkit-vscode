@@ -2,6 +2,8 @@
 
 > **Visual interface to generate and manage AI agents for Visual Studio Code, Claude Code, Cursor, GitHub Copilot, and more.**
 
+<img width="300" height="300" alt="icon" src="https://github.com/user-attachments/assets/22efd0ec-cdb9-4775-8158-a6655436b4bc" />
+
 AgentKit for VSCode is a powerful extension that provides a beautiful GUI to install and manage 42+ pre-built AI agents across 7 specialized departments. Stop copying prompts manually—let AgentKit set up your entire AI development workflow in minutes.
 
 ---
@@ -61,6 +63,10 @@ code --install-extension agentkit-vscode-0.1.0.vsix
 1. Click the **AgentKit** icon in the Activity Bar
 2. Browse available agents
 3. Click **"Open Agent Manager"** to install
+
+![Demo](https://github.com/user-attachments/assets/899a0241-9728-4157-8f47-f398a3ec747d)
+
+
 
 ---
 
