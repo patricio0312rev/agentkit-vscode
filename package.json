@@ -2,7 +2,7 @@
   "name": "agentkit-vscode",
   "displayName": "AgentKit - AI Agent Generator for Code Editors",
   "description": "Visual interface to generate and manage AI agents for Visual Studio Code, Claude Code, Cursor, GitHub Copilot, and more. Setup AI agents with a beautiful GUI.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "patricio0312rev",
   "engines": {
     "vscode": "^1.85.0"
