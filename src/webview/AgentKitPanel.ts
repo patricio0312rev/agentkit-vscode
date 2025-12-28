@@ -77,7 +77,7 @@ export class AgentKitPanel {
 
   private async handleInstall(data: any) {
     const { tool, folder, departments, agents } = data;
-
+  
     try {
       const workspaceFolder = await this.fileSystemService.getWorkspaceFolder();
       if (!workspaceFolder) {
@@ -86,13 +86,13 @@ export class AgentKitPanel {
 
       await vscode.window.withProgress(
         {
-          location: vscode.ProgressLocation.Notification,
-          title: 'Installing AgentKit agents...',
+          location: vscode.ProgressLocation.Window,
+          title: 'Installing AgentKit agents: ',
           cancellable: false
         },
         async (progress) => {
           progress.report({ increment: 0, message: 'Preparing...' });
-
+  
           const config = {
             tool,
             folder,
@@ -100,29 +100,33 @@ export class AgentKitPanel {
             agents,
             stack: []
           };
-
+  
           progress.report({ increment: 30, message: 'Generating agents...' });
-
+  
           await this.agentKitService.generateAgents(config, workspaceFolder.fsPath);
-
-          progress.report({ increment: 100, message: 'Complete!' });
-
-          const action = await vscode.window.showInformationMessage(
-            `✅ AgentKit: Installed ${agents.length} agents successfully!`,
-            'Open Folder',
-            'Done'
-          );
-
-          if (action === 'Open Folder') {
-            await this.fileSystemService.revealInExplorer(
-              vscode.Uri.joinPath(workspaceFolder, folder).fsPath
-            );
-          }
-
-          this._panel.webview.postMessage({ command: 'installComplete' });
-          vscode.commands.executeCommand('agentkit.refreshAgents');
+  
+          progress.report({ increment: 100 });
         }
       );
+  
+      // Show toast notification that auto-dismisses after 3 seconds
+      const action = await Promise.race([
+        vscode.window.showInformationMessage(
+          `✅ Installed ${agents.length} agents successfully!`,
+          'Open Folder'
+        ),
+        new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), 3000))
+      ]);
+  
+      if (action === 'Open Folder') {
+        await this.fileSystemService.revealInExplorer(
+          vscode.Uri.joinPath(workspaceFolder, folder).fsPath
+        );
+      }
+  
+      this._panel.webview.postMessage({ command: 'installComplete' });
+      vscode.commands.executeCommand('agentkit.refreshAgents');
+  
     } catch (error: any) {
       logger.error('Error installing agents', error);
       vscode.window.showErrorMessage(`AgentKit Error: ${error.message}`);
