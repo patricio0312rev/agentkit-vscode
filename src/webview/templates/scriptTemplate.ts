@@ -176,12 +176,12 @@ export function getScriptContent(): string {
           deptSection.className = 'agents-list';
 
           const deptHeader = document.createElement('div');
-          deptHeader.className = 'department-section-header';
+          deptHeader.className = 'select-all-container';
           deptHeader.innerHTML = \`
-            <label class="agent-checkbox-label">
+            <div class="select-all-item">
               <input type="checkbox" class="select-all-checkbox" id="select-all-\${deptId}" data-dept="\${deptId}">
               <span>\${dept.name} (Select All)</span>
-            </label>
+            </div>
           \`;
           deptSection.appendChild(deptHeader);
 
@@ -189,13 +189,11 @@ export function getScriptContent(): string {
             const agentItem = document.createElement('div');
             agentItem.className = 'agent-item';
             agentItem.innerHTML = \`
-              <label class="agent-checkbox-label">
-                <input type="checkbox" class="agent-checkbox" data-dept="\${deptId}" data-agent="\${agent}">
-                <div>
-                  <div class="agent-name">\${agent}</div>
-                  <div class="agent-desc">\${agentDescriptions[agent] || ''}</div>
-                </div>
-              </label>
+              <input type="checkbox" class="agent-checkbox" data-dept="\${deptId}" data-agent="\${agent}">
+              <div class="agent-details">
+                <div class="agent-name">\${agent}</div>
+                <div class="agent-description">\${agentDescriptions[agent] || ''}</div>
+              </div>
             \`;
             deptSection.appendChild(agentItem);
           });
@@ -208,6 +206,17 @@ export function getScriptContent(): string {
           checkbox.onchange = () => {
             updateSelectAllCheckbox(checkbox.dataset.dept);
             updateSummary();
+          };
+        });
+
+        // Add click handlers for agent details to toggle checkbox
+        document.querySelectorAll('.agent-details').forEach(details => {
+          details.onclick = () => {
+            const checkbox = details.parentElement.querySelector('.agent-checkbox');
+            if (checkbox) {
+              checkbox.checked = !checkbox.checked;
+              checkbox.onchange();
+            }
           };
         });
 
