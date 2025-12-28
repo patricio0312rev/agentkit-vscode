@@ -1,17 +1,30 @@
-# source
+# Source files
 src/**
-**/*.ts
-**/*.map
+tsconfig.json
+esbuild.js
+.eslintrc.json
 
-# tooling / misc
-.vscode/**
-.github/**
+# Build artifacts (keep bundled files and templates)
+dist/**
+!dist/extension.js
+!dist/templates/**
+!dist/lib/**
+
+# Dependencies (bundled)
 node_modules/**
-pnpm-lock.yaml
-package-lock.json
-tsconfig*.json
-eslint*.*
-prettier*.*
+
+# IDE
+.vscode-test/
+.vscode/**
+!.vscode/launch.json
+
+# Git
+.git
+.gitignore
+
+# Logs
 *.log
 
-# IMPORTANT: do NOT ignore dist or LICENSE
+# Misc
+.DS_Store
+*.vsix
