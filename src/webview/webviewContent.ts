@@ -400,7 +400,7 @@ export function getWebviewContent(): string {
         </div>
         <input type="text" id="folderInput" placeholder="Leave empty for default">
         <div class="info-box">
-          Default folders: <strong>.cursorrules</strong> (Cursor), <strong>.claude</strong> (Claude Code), 
+          Default folders: <strong>.cursorrules</strong> (Cursor), <strong>.claude/agents</strong> (Claude Code), 
           <strong>.github</strong> (Copilot), <strong>.aider</strong> (Aider), <strong>.ai</strong> (Universal)
         </div>
       </div>
@@ -440,7 +440,7 @@ export function getWebviewContent(): string {
   
       const tools = [
         { id: 'cursor', name: 'Cursor', icon: 'cursor', desc: '@-mentions and multi-file', folder: '.cursorrules' },
-        { id: 'claude-code', name: 'Claude Code', icon: 'anthropic', desc: 'Native sub-agent support', folder: '.claude' },
+        { id: 'claude-code', name: 'Claude Code', icon: 'anthropic', desc: 'Native sub-agent support', folder: '.claude/agents' },
         { id: 'copilot', name: 'GitHub Copilot', icon: 'github', desc: 'copilot-instructions.md', folder: '.github' },
         { id: 'aider', name: 'Aider', icon: 'git', desc: 'conventions.md', folder: '.aider' },
         { id: 'universal', name: 'Universal', icon: 'openai', desc: 'Works with any tool', folder: '.ai' }
