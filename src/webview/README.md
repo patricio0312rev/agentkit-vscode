@@ -14,21 +14,23 @@ src/webview/
 │   ├── models.ts                 # Claude model definitions (12 lines)
 │   └── tools.ts                  # Tool definitions (15 lines)
 └── templates/                    # HTML, CSS, and JavaScript templates
-    ├── layout.html               # HTML structure (83 lines)
+    ├── layout.html               # HTML structure (83 lines) - source file
+    ├── layout.ts                 # HTML as TypeScript export (bundled)
     ├── scriptTemplate.ts         # JavaScript logic (313 lines)
-    └── styles.css                # CSS styles (391 lines)
+    ├── styles.css                # CSS styles (391 lines) - source file
+    └── styles.ts                 # CSS as TypeScript export (bundled)
 ```
 
 ## File Breakdown
 
 ### Main Files
 
-#### `webviewContent.ts` (40 lines)
-The main assembler that reads all components and generates the final HTML document.
-- Reads CSS from `templates/styles.css`
-- Reads HTML from `templates/layout.html`
+#### `webviewContent.ts` (30 lines)
+The main assembler that imports all components and generates the final HTML document.
+- Imports CSS string from `templates/styles.ts`
+- Imports HTML string from `templates/layout.ts`
 - Gets script content from `templates/scriptTemplate.ts`
-- Assembles everything into a complete HTML document
+- Assembles everything into a complete HTML document at compile time
 
 #### `AgentKitPanel.ts` (existing)
 VS Code webview panel manager that handles:
@@ -100,10 +102,20 @@ All JavaScript logic:
 ## Making Changes
 
 ### To update styles
-Edit `templates/styles.css`
+1. Edit `templates/styles.css`
+2. Run the conversion script:
+   ```bash
+   node -e "const fs=require('fs');const c=fs.readFileSync('src/webview/templates/styles.css','utf8');fs.writeFileSync('src/webview/templates/styles.ts','export const styles = \`'+c.replace(/\`/g,'\\\`').replace(/\$/g,'\\\$')+'\`;\n');"
+   ```
+3. Or manually update `templates/styles.ts`
 
 ### To update layout
-Edit `templates/layout.html`
+1. Edit `templates/layout.html`
+2. Run the conversion script:
+   ```bash
+   node -e "const fs=require('fs');const c=fs.readFileSync('src/webview/templates/layout.html','utf8');fs.writeFileSync('src/webview/templates/layout.ts','export const layout = \`'+c.replace(/\`/g,'\\\`').replace(/\$/g,'\\\$')+'\`;\n');"
+   ```
+3. Or manually update `templates/layout.ts`
 
 ### To update JavaScript logic
 Edit `templates/scriptTemplate.ts`
@@ -113,6 +125,12 @@ Edit files in `data/` directory
 
 ### After making changes
 Run `npm run compile` to check TypeScript, then `npm run build` to bundle.
+
+### Why .css/.html and .ts files?
+- `.css` and `.html` files are easier to edit with proper syntax highlighting
+- `.ts` files are what actually get bundled and used at runtime
+- After editing `.css` or `.html`, run the conversion script to update `.ts` files
+- Alternatively, edit `.ts` files directly if you prefer
 
 ## Notes
 
