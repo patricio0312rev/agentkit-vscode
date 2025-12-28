@@ -9,6 +9,7 @@ interface AgentConfig {
   tool: string;
   skipExamples?: boolean;
   stack?: string[];
+  model?: 'sonnet' | 'opus' | 'haiku' | 'inherit';
 }
 
 interface Department {
@@ -114,11 +115,12 @@ function processAgentContent(content: string, config: AgentConfig): string {
   }
 
   // Ensure model field is present in frontmatter
+  const modelValue = config.model || 'sonnet';
   if (!processed.includes('model:')) {
-    // Insert model: sonnet in frontmatter
+    // Insert model field in frontmatter
     processed = processed.replace(
       /---\n([\s\S]*?)\n---/,
-      (match, frontmatter) => `---\n${frontmatter}\nmodel: sonnet\n---`
+      (_match, frontmatter) => `---\n${frontmatter}\nmodel: ${modelValue}\n---`
     );
   }
 

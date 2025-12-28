@@ -4,6 +4,7 @@ export interface AgentConfig {
     departments: string[];
     agents: string[];
     stack?: string[];
+    model?: 'sonnet' | 'opus' | 'haiku' | 'inherit';
 }
   
 export type ToolType = 'cursor' | 'claude-code' | 'copilot' | 'aider' | 'universal';
@@ -26,7 +27,7 @@ export const TOOLS: Record<ToolType, Tool> = {
       id: 'claude-code',
       name: 'Claude Code',
       description: 'Native sub-agent support',
-      folder: '.claude'
+      folder: '.claude/agents'
     },
     'copilot': {
       id: 'copilot',

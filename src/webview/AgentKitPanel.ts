@@ -76,8 +76,8 @@ export class AgentKitPanel {
   }
 
   private async handleInstall(data: any) {
-    const { tool, folder, departments, agents } = data;
-  
+    const { tool, folder, departments, agents, model } = data;
+
     try {
       const workspaceFolder = await this.fileSystemService.getWorkspaceFolder();
       if (!workspaceFolder) {
@@ -92,13 +92,14 @@ export class AgentKitPanel {
         },
         async (progress) => {
           progress.report({ increment: 0, message: 'Preparing...' });
-  
+
           const config = {
             tool,
             folder,
             departments,
             agents,
-            stack: []
+            stack: [],
+            model
           };
   
           progress.report({ increment: 30, message: 'Generating agents...' });
