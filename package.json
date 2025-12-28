@@ -208,6 +208,7 @@
     "publish:ovsx": "npm run build && npx ovsx publish --no-dependencies"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.x",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.x",
@@ -218,7 +219,7 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "@patricio0312rev/agentkit": "^0.1.0"
+    "@patricio0312rev/agentkit": "^0.2.2"
   },
   "author": "Patricio Marroquin",
   "license": "MIT",
