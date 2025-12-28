@@ -7,7 +7,7 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "icon": "./icon.png",
+  "icon": "icon.png",
   "categories": [
     "Other",
     "Snippets",
@@ -30,7 +30,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./dist/extension.js",
+  "main": "dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -197,14 +197,15 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run build",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "vscode:prepublish": "npm run build",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js",
     "compile": "tsc -p ./",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts",
-    "package": "pnpm run build && pnpm dlx @vscode/vsce package --no-dependencies",
-    "publish": "pnpm run build && vsce publish",
-    "publish:ovsx": "pnpm run build && ovsx publish -p"
+    "package": "npm run build && npx @vscode/vsce package --no-dependencies",
+    "publish": "npm run build && npx @vscode/vsce publish",
+    "publish:ovsx": "npm run build && npx ovsx publish"
   },
   "devDependencies": {
     "@types/node": "^20.x",
@@ -228,12 +229,5 @@
   "bugs": {
     "url": "https://github.com/patricio0312rev/agentkit-vscode/issues"
   },
-  "homepage": "https://github.com/patricio0312rev/agentkit-vscode#readme",
-  "files": [
-    "dist",
-    "icon.png",
-    "README.md",
-    "LICENSE",
-    "package.json"
-  ]
+  "homepage": "https://github.com/patricio0312rev/agentkit-vscode#readme"
 }

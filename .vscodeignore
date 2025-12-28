@@ -1,0 +1,17 @@
+# source
+src/**
+**/*.ts
+**/*.map
+
+# tooling / misc
+.vscode/**
+.github/**
+node_modules/**
+pnpm-lock.yaml
+package-lock.json
+tsconfig*.json
+eslint*.*
+prettier*.*
+*.log
+
+# IMPORTANT: do NOT ignore dist or LICENSE
