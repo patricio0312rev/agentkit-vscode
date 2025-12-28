@@ -1,24 +1,19 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
 import { AgentConfig } from '../models/AgentConfig';
 import { logger } from '../utils/logger';
-import { generateAgentsFlat, getDepartments, getAvailableAgents } from '../utils/agentGenerator';
+const agentkit = require('@patricio0312rev/agentkit');
 
 export class AgentKitService {
   async generateAgents(config: AgentConfig, workspaceRoot: string): Promise<void> {
     logger.info('Generating agents with config:', config);
 
     try {
-      // Get bundled templates path
-      const extensionPath = vscode.extensions.getExtension('patricio0312rev.agentkit-vscode')?.extensionPath;
-      const templatesPath = path.join(extensionPath!, 'dist', 'templates'); // Changed to dist
-      
       // Change to workspace directory
       const originalCwd = process.cwd();
       process.chdir(workspaceRoot);
 
       try {
-        await generateAgentsFlat(config, templatesPath);
+        // Use agentkit package directly - it handles subfolder routing correctly
+        await agentkit.generate(config);
         logger.info('Agents generated successfully');
       } finally {
         process.chdir(originalCwd);
@@ -30,10 +25,24 @@ export class AgentKitService {
   }
 
   async getDepartments(): Promise<Record<string, any>> {
-    return getDepartments();
+    return agentkit.getDepartments();
   }
 
   async getAvailableAgents(): Promise<any[]> {
-    return getAvailableAgents();
+    const departments = agentkit.getDepartments();
+    const agents: Array<{ id: string; name: string; department: string; departmentName: string }> = [];
+
+    Object.entries(departments).forEach(([deptId, dept]: [string, any]) => {
+      dept.agents.forEach((agentName: string) => {
+        agents.push({
+          id: `${deptId}/${agentName}`,
+          name: agentName,
+          department: deptId,
+          departmentName: dept.name
+        });
+      });
+    });
+
+    return agents;
   }
 }
