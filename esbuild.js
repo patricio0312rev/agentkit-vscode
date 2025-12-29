@@ -5,23 +5,23 @@ const path = require('path');
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
 
-// Plugin to copy agentkit templates
+// Plugin to copy agentkit templates and fix bundled paths
 const copyTemplatesPlugin = {
   name: 'copy-templates',
   setup(build) {
     build.onEnd(() => {
       const agentKitPath = path.join(__dirname, 'node_modules/@patricio0312rev/agentkit');
       const distDir = path.join(__dirname, 'dist');
-      
+
       // Ensure dist directory exists
       if (!fs.existsSync(distDir)) {
         fs.mkdirSync(distDir, { recursive: true });
       }
-      
+
       // Copy templates directory
       const srcTemplates = path.join(agentKitPath, 'templates');
       const destTemplates = path.join(distDir, 'templates');
-      
+
       if (fs.existsSync(srcTemplates)) {
         if (fs.existsSync(destTemplates)) {
           fs.rmSync(destTemplates, { recursive: true });
@@ -31,11 +31,11 @@ const copyTemplatesPlugin = {
       } else {
         console.warn('⚠ Templates directory not found:', srcTemplates);
       }
-      
+
       // Copy src/lib directory (config files)
       const srcLib = path.join(agentKitPath, 'src/lib');
       const destLib = path.join(distDir, 'lib');
-      
+
       if (fs.existsSync(srcLib)) {
         if (fs.existsSync(destLib)) {
           fs.rmSync(destLib, { recursive: true });
@@ -44,6 +44,34 @@ const copyTemplatesPlugin = {
         console.log('✓ Copied agentkit config files');
       } else {
         console.warn('⚠ Lib directory not found:', srcLib);
+      }
+
+      const extensionPath = path.join(distDir, 'extension.js');
+      if (fs.existsSync(extensionPath)) {
+        let content = fs.readFileSync(extensionPath, 'utf8');
+
+        content = content.replace(
+          /__dirname,\s*"\.\.\/\.\.\/templates\/departments"/g,
+          '__dirname,"./templates/departments"'
+        );
+
+        // Remove the HTML comment from fallback template
+        content = content.replace(
+          /`<!--[^`]+?\.md -->\n/g,
+          '`'
+        ).replace(
+          /`<!--[^`]+?\.md -->\\n/g,
+          '`'
+        );
+
+        // Improve the fallback template content
+        content = content.replace(
+          /This is a placeholder agent file\. Please add specific instructions and responsibilities\./g,
+          'Define the specific role and capabilities of this agent.'
+        );
+
+        fs.writeFileSync(extensionPath, content);
+        console.log('✓ Fixed template paths in bundled code');
       }
     });
   }
