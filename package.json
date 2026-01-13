@@ -49,7 +49,8 @@
       },
       {
         "command": "agentkit.refreshAgents",
-        "title": "AgentKit: Refresh Installed Agents"
+        "title": "AgentKit: Refresh Installed Agents",
+        "icon": "$(refresh)"
       },
       {
         "command": "agentkit.updateAgents",
@@ -103,13 +104,33 @@
       "view/title": [
         {
           "command": "agentkit.openPanel",
-          "when": "view == agentkit-installed",
-          "group": "navigation"
+          "when": "view == agentkit-installed || view == agentkit-available",
+          "group": "navigation@1"
         },
         {
           "command": "agentkit.refreshAgents",
+          "when": "view == agentkit-installed || view == agentkit-available",
+          "group": "navigation@2"
+        },
+        {
+          "command": "agentkit.quickInit",
+          "when": "view == agentkit-available",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "agentkit.initAgents",
+          "when": "view == agentkit-available",
+          "group": "1_actions@2"
+        },
+        {
+          "command": "agentkit.updateAgents",
           "when": "view == agentkit-installed",
-          "group": "navigation"
+          "group": "2_update@1"
+        },
+        {
+          "command": "agentkit.removeAgents",
+          "when": "view == agentkit-installed",
+          "group": "3_remove@1"
         }
       ],
       "commandPalette": [
