@@ -4,6 +4,12 @@ import { AgentTreeItem } from './AgentTreeItem';
 import { FileSystemService } from '../services/FileSystemService';
 import { logger } from '../utils/logger';
 
+
+const FLAT_STRUCTURE_TOOLS: Record<string, string> = {
+  '.claude': 'agents',
+  '.github': 'copilot-instructions',
+};
+
 export class InstalledAgentsProvider implements vscode.TreeDataProvider<AgentTreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<AgentTreeItem | undefined | null | void> = 
     new vscode.EventEmitter<AgentTreeItem | undefined | null | void>();
@@ -51,14 +57,18 @@ export class InstalledAgentsProvider implements vscode.TreeDataProvider<AgentTre
 
       for (const agentFile of agentFiles) {
         const parts = agentFile.split(path.sep);
-        if (parts.length >= 3) {
-          // Format: .cursorrules/engineering/agent-name.md
-          const department = parts[1];
-          
+        if (parts.length < 2) {
+          continue;
+        }
+
+        const toolFolder = parts[0];
+        const department = this.extractDepartment(toolFolder, parts);
+
+        if (department) {
           if (!this.installedAgents.has(department)) {
             this.installedAgents.set(department, []);
           }
-          
+
           this.installedAgents.get(department)?.push(
             path.join(workspaceRoot, agentFile)
           );
@@ -67,6 +77,32 @@ export class InstalledAgentsProvider implements vscode.TreeDataProvider<AgentTre
     } catch (error) {
       logger.error('Error loading installed agents', error as Error);
     }
+  }
+
+  private extractDepartment(toolFolder: string, parts: string[]): string | null {
+    const flatSubpath = FLAT_STRUCTURE_TOOLS[toolFolder];
+
+    if (flatSubpath !== undefined) {
+      // Flat structure: .claude/agents/agent.md -> tool name as department
+      if (parts.length >= 2) {
+        return this.getToolDisplayName(toolFolder);
+      }
+    } else {
+      // Department structure: .cursorrules/engineering/agent.md
+      if (parts.length >= 3) {
+        return parts[1];
+      }
+    }
+
+    return null;
+  }
+
+  private getToolDisplayName(toolFolder: string): string {
+    const names: Record<string, string> = {
+      '.claude': 'Claude Code',
+      '.github': 'GitHub Copilot',
+    };
+    return names[toolFolder] || toolFolder;
   }
 
   private getDepartmentItems(): AgentTreeItem[] {
