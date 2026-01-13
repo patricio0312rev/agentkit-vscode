@@ -385,8 +385,157 @@ button.secondary:hover:not(:disabled) {
   gap: 10px;
   margin-bottom: 12px;
 }
-  
+
 .dept-section-icon {
   font-size: 18px;
+}
+
+/* Search Styles */
+.search-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--vscode-focusBorder);
+}
+
+.search-clear {
+  padding: 8px 16px;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-clear:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+/* Favorites Section Styles */
+.favorites-section {
+  background: var(--vscode-textBlockQuote-background);
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.favorites-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.favorites-icon {
+  font-size: 16px;
+}
+
+.favorites-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.favorites-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.favorite-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--vscode-input-background);
+  border: 2px solid var(--vscode-input-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.favorite-chip:hover {
+  border-color: var(--vscode-focusBorder);
+}
+
+.favorite-chip.selected {
+  background: var(--vscode-button-secondaryBackground);
+  border-color: var(--vscode-focusBorder);
+}
+
+.favorite-chip-star {
+  color: var(--vscode-charts-yellow);
+  font-size: 14px;
+}
+
+.favorite-chip-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorite-chip-check {
+  color: var(--vscode-charts-green);
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.favorite-chip-remove {
+  color: var(--vscode-descriptionForeground);
+  font-size: 16px;
+  margin-left: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.favorite-chip-remove:hover {
+  opacity: 1;
+  color: var(--vscode-errorForeground);
+}
+
+/* Make select-all labels clickable */
+.select-all-item span {
+  cursor: pointer;
+}
+
+.select-all-item span:hover {
+  color: var(--vscode-foreground);
+}
+
+/* Agent item favorite star */
+.agent-favorite-btn {
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  padding: 2px;
+}
+
+.agent-favorite-btn:hover {
+  opacity: 1;
+}
+
+.agent-favorite-btn.is-favorite {
+  opacity: 1;
+  color: var(--vscode-charts-yellow);
 }
 `;
