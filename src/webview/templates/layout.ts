@@ -2,6 +2,21 @@ export const layout = `<div class="container">
   <h1>🤖 AgentKit Manager</h1>
   <p class="subtitle">Install and manage AI agents for your development workflow</p>
 
+  <!-- Search Box -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search agents..." class="search-input" />
+    <button id="clearSearchBtn" class="search-clear" style="display: none;">Clear</button>
+  </div>
+
+  <!-- Favorites Section -->
+  <div class="favorites-section" id="favoritesSection" style="display: none;">
+    <div class="favorites-header">
+      <span class="favorites-icon">⭐</span>
+      <span class="favorites-title">Favorites</span>
+    </div>
+    <div class="favorites-grid" id="favoritesGrid"></div>
+  </div>
+
   <!-- Step 1: Select Tool -->
   <div class="step">
     <div class="step-header">
