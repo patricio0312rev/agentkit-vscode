@@ -445,6 +445,7 @@ button.secondary:hover:not(:disabled) {
 
 .favorites-icon {
   font-size: 16px;
+  color: var(--vscode-charts-yellow);
 }
 
 .favorites-title {
