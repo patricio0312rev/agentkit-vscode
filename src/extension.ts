@@ -15,8 +15,6 @@ import { AgentKitService } from './services/AgentKitService';
 import path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-  logger.info('AgentKit extension is now active!');
-
   const configService = new ConfigService();
   const fileSystemService = new FileSystemService();
 
@@ -27,15 +25,15 @@ export function activate(context: vscode.ExtensionContext) {
   const installedAgentsProvider = new InstalledAgentsProvider();
   const availableAgentsProvider = new AvailableAgentsProvider();
 
-  const installedTreeView = vscode.window.registerTreeDataProvider(
-    TREE_VIEW_IDS.INSTALLED,
-    installedAgentsProvider
-  );
+  const installedTreeView = vscode.window.createTreeView(TREE_VIEW_IDS.INSTALLED, {
+    treeDataProvider: installedAgentsProvider,
+    showCollapseAll: true,
+  });
 
-  const availableTreeView = vscode.window.registerTreeDataProvider(
-    TREE_VIEW_IDS.AVAILABLE,
-    availableAgentsProvider
-  );
+  const availableTreeView = vscode.window.createTreeView(TREE_VIEW_IDS.AVAILABLE, {
+    treeDataProvider: availableAgentsProvider,
+    showCollapseAll: true,
+  });
 
   context.subscriptions.push(installedTreeView, availableTreeView);
 
