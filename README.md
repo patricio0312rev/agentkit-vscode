@@ -17,6 +17,9 @@ AgentKit for VSCode is a powerful extension that provides a beautiful GUI to ins
 - 🔄 **Auto-Refresh** - Automatically detect new agents
 - ⚙️ **Fully Customizable** - Pick exactly which agents you need
 - 🛠️ **Multi-Tool Support** - Works with Cursor, Claude Code, GitHub Copilot, Aider
+- 👁️ **Agent Preview** - Preview agent content before installing
+- ⭐ **Favorites** - Star your most-used agents for quick access
+- 🔍 **Search** - Filter agents by name or description
 
 ---
 
@@ -153,6 +156,7 @@ Open VSCode Settings (`Ctrl+,` or `Cmd+,`) and search for **"AgentKit"**:
 - **Auto Refresh** - Automatically refresh when files change
 - **Show Welcome** - Show welcome message on first use
 - **Default Departments** - Pre-selected departments
+- **Favorite Agents** - Your starred agents (managed via UI)
 
 ### Commands
 
@@ -187,6 +191,28 @@ claude-code "Build a login page using the frontend-developer agent"
 ### With GitHub Copilot
 
 Copilot automatically uses the instructions from `.github/copilot-instructions.md`
+
+---
+
+## 🔍 New in v0.3.0
+
+### Agent Preview
+
+Click on any agent in the **Available Agents** sidebar to preview its full content before installing. The preview opens in a side panel where you can review the agent's capabilities and decide if it fits your needs.
+
+### Favorites
+
+Star your most-used agents for quick access:
+
+1. **From Sidebar**: Click the star icon next to any available agent
+2. **From Agent Manager**: Click the star next to any agent in the selection list
+3. **Quick Select**: Use the Favorites section in the Agent Manager to quickly toggle your starred agents
+
+Favorites sync between the sidebar and the Agent Manager webview.
+
+### Search
+
+Use the search bar at the top of the Agent Manager to filter agents by name or description. This makes it easy to find specific agents when you need them.
 
 ---
 
