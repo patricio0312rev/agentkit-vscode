@@ -3,6 +3,16 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { logger } from '../utils/logger';
 
+const AGENT_PATHS: Record<string, string> = {
+  '.claude': 'agents',
+  '.cursorrules': '',
+  '.aider': '',
+  '.github': 'copilot-instructions',
+  '.ai': '',
+};
+
+const EXCLUDED_FILENAMES = ['readme.md', 'index.md', 'skill.md'];
+
 export class FileSystemService {
   async getWorkspaceFolder(): Promise<vscode.Uri | undefined> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -37,17 +47,19 @@ export class FileSystemService {
   }
 
   async getInstalledAgents(workspaceRoot: string): Promise<string[]> {
-    const agentFolders = ['.cursorrules', '.claude', '.aider', '.github', '.ai'];
     const installedAgents: string[] = [];
 
-    for (const folder of agentFolders) {
-      const folderPath = path.join(workspaceRoot, folder);
-      if (await this.folderExists(folderPath)) {
+    for (const [toolFolder, agentSubpath] of Object.entries(AGENT_PATHS)) {
+      const agentBasePath = agentSubpath
+        ? path.join(workspaceRoot, toolFolder, agentSubpath)
+        : path.join(workspaceRoot, toolFolder);
+
+      if (await this.folderExists(agentBasePath)) {
         try {
-          const files = await this.listMarkdownFiles(folderPath);
+          const files = await this.listAgentFiles(agentBasePath);
           installedAgents.push(...files.map(f => path.relative(workspaceRoot, f)));
         } catch (error) {
-          logger.error(`Error reading folder ${folder}`, error as Error);
+          logger.error(`Error reading folder ${toolFolder}`, error as Error);
         }
       }
     }
@@ -55,20 +67,22 @@ export class FileSystemService {
     return installedAgents;
   }
 
-  private async listMarkdownFiles(dirPath: string): Promise<string[]> {
+  private async listAgentFiles(dirPath: string): Promise<string[]> {
     const files: string[] = [];
-    
+
     try {
       const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-      
+
       for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
-        
+
         if (entry.isDirectory()) {
-          const subFiles = await this.listMarkdownFiles(fullPath);
+          const subFiles = await this.listAgentFiles(fullPath);
           files.push(...subFiles);
         } else if (entry.isFile() && entry.name.endsWith('.md')) {
-          files.push(fullPath);
+          if (!EXCLUDED_FILENAMES.includes(entry.name.toLowerCase())) {
+            files.push(fullPath);
+          }
         }
       }
     } catch (error) {
