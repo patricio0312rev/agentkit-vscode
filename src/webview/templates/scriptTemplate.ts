@@ -19,7 +19,10 @@ export function getScriptContent(): string {
       let selectedTool = 'cursor';
       let selectedDepartments = new Set();
       let selectedModel = 'sonnet';
+      let selectedAgents = [];
       let departments = {};
+      let favoriteAgents = [];
+      let searchQuery = '';
 
       // Helper to get Simple Icon SVG
       function getSimpleIconSvg(iconName) {
@@ -35,8 +38,56 @@ export function getScriptContent(): string {
         return '<div style="width: 20px; height: 20px;"></div>';
       }
 
-      // Request departments data
+      // Request departments and favorites data
       vscode.postMessage({ command: 'getDepartments' });
+      vscode.postMessage({ command: 'getFavorites' });
+
+      // Search functionality
+      const searchInput = document.getElementById('searchInput');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+      searchInput.oninput = (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+        filterDisplay();
+      };
+
+      clearSearchBtn.onclick = () => {
+        searchInput.value = '';
+        searchQuery = '';
+        clearSearchBtn.style.display = 'none';
+        filterDisplay();
+      };
+
+      function filterDisplay() {
+        if (!searchQuery) {
+          // Show all departments
+          document.querySelectorAll('.department-card').forEach(card => {
+            card.style.display = 'block';
+          });
+        } else {
+          // Filter departments based on search
+          document.querySelectorAll('.department-card').forEach(card => {
+            const deptId = card.querySelector('.department-header').dataset.deptId;
+            const dept = departments[deptId];
+            if (!dept) return;
+
+            // Check department name
+            const deptMatch = dept.name.toLowerCase().includes(searchQuery);
+
+            // Check agents in department
+            const agentMatch = dept.agents.some(agent =>
+              agent.toLowerCase().includes(searchQuery) ||
+              (agentDescriptions[agent] || '').toLowerCase().includes(searchQuery)
+            );
+
+            card.style.display = (deptMatch || agentMatch) ? 'block' : 'none';
+          });
+        }
+
+        // Re-render agents list to apply filter
+        renderAgentsList();
+      }
 
       // Render tools
       const toolGrid = document.getElementById('toolGrid');
@@ -100,16 +151,98 @@ export function getScriptContent(): string {
         updateSummary();
       }
 
-      // Listen for departments data
+      // Listen for messages from extension
       window.addEventListener('message', event => {
         const message = event.data;
         if (message.command === 'departmentsData') {
           departments = message.data;
           renderDepartments();
+        } else if (message.command === 'favoritesData') {
+          favoriteAgents = message.data || [];
+          renderFavorites();
         } else if (message.command === 'installComplete') {
           // Handle install complete
         }
       });
+
+      function renderFavorites() {
+        const favoritesSection = document.getElementById('favoritesSection');
+        const favoritesGrid = document.getElementById('favoritesGrid');
+
+        if (favoriteAgents.length === 0) {
+          favoritesSection.style.display = 'none';
+          return;
+        }
+
+        favoritesSection.style.display = 'block';
+        favoritesGrid.innerHTML = '';
+
+        favoriteAgents.forEach(agentId => {
+          // Find department for this agent
+          let agentDept = null;
+          let agentDeptName = null;
+
+          for (const [deptId, dept] of Object.entries(departments)) {
+            if (dept.agents && dept.agents.includes(agentId)) {
+              agentDept = deptId;
+              agentDeptName = dept.name;
+              break;
+            }
+          }
+
+          const isSelected = selectedAgents.includes(agentId);
+
+          const chip = document.createElement('div');
+          chip.className = 'favorite-chip' + (isSelected ? ' selected' : '');
+          chip.dataset.agentId = agentId;
+          chip.dataset.deptId = agentDept || '';
+          chip.innerHTML = \`
+            <span class="favorite-chip-star">&#9733;</span>
+            <span class="favorite-chip-name">\${agentId}</span>
+            \${isSelected ? '<span class="favorite-chip-check">&#10003;</span>' : ''}
+            <span class="favorite-chip-remove" title="Remove from favorites">&times;</span>
+          \`;
+
+          // Click on chip to toggle selection
+          chip.onclick = (e) => {
+            if (e.target.classList.contains('favorite-chip-remove')) return;
+
+            const chipAgentId = chip.dataset.agentId;
+            const chipDeptId = chip.dataset.deptId;
+
+            // Toggle selection
+            if (selectedAgents.includes(chipAgentId)) {
+              selectedAgents = selectedAgents.filter(id => id !== chipAgentId);
+            } else {
+              selectedAgents.push(chipAgentId);
+              // Also select the department if not selected
+              if (chipDeptId && !selectedDepartments.has(chipDeptId)) {
+                selectedDepartments.add(chipDeptId);
+                // Update department card
+                const deptCard = document.querySelector(\`[data-dept-id="\${chipDeptId}"]\`)?.closest('.department-card');
+                if (deptCard) deptCard.classList.add('selected');
+              }
+            }
+            renderFavorites();
+            renderAgentsList();
+            updateSummary();
+          };
+
+          // Remove from favorites
+          const removeBtn = chip.querySelector('.favorite-chip-remove');
+          if (removeBtn) {
+            removeBtn.onclick = (e) => {
+              e.stopPropagation();
+              vscode.postMessage({
+                command: 'toggleFavorite',
+                data: { agentId: agentId }
+              });
+            };
+          }
+
+          favoritesGrid.appendChild(chip);
+        });
+      }
 
       function renderDepartments() {
         const deptGrid = document.getElementById('departmentGrid');
@@ -140,6 +273,9 @@ export function getScriptContent(): string {
 
           deptGrid.appendChild(card);
         });
+
+        // Re-render favorites after departments are loaded
+        renderFavorites();
       }
 
       function toggleDepartment(deptId, card) {
@@ -172,6 +308,17 @@ export function getScriptContent(): string {
           const dept = departments[deptId];
           if (!dept) return;
 
+          // Filter agents if search is active
+          let agents = dept.agents;
+          if (searchQuery) {
+            agents = agents.filter(agent =>
+              agent.toLowerCase().includes(searchQuery) ||
+              (agentDescriptions[agent] || '').toLowerCase().includes(searchQuery)
+            );
+          }
+
+          if (agents.length === 0) return;
+
           const deptSection = document.createElement('div');
           deptSection.className = 'agents-list';
 
@@ -180,20 +327,26 @@ export function getScriptContent(): string {
           deptHeader.innerHTML = \`
             <div class="select-all-item">
               <input type="checkbox" class="select-all-checkbox" id="select-all-\${deptId}" data-dept="\${deptId}">
-              <span>\${dept.name} (Select All)</span>
+              <span>\${dept.name} (Select All\${searchQuery ? ' Filtered' : ''})</span>
             </div>
           \`;
           deptSection.appendChild(deptHeader);
 
-          dept.agents.forEach(agent => {
+          agents.forEach(agent => {
+            const isFavorite = favoriteAgents.includes(agent);
+            const isSelected = selectedAgents.includes(agent);
+
             const agentItem = document.createElement('div');
             agentItem.className = 'agent-item';
             agentItem.innerHTML = \`
-              <input type="checkbox" class="agent-checkbox" data-dept="\${deptId}" data-agent="\${agent}">
+              <input type="checkbox" class="agent-checkbox" data-dept="\${deptId}" data-agent="\${agent}" \${isSelected ? 'checked' : ''}>
               <div class="agent-details">
                 <div class="agent-name">\${agent}</div>
                 <div class="agent-description">\${agentDescriptions[agent] || ''}</div>
               </div>
+              <span class="agent-favorite-btn \${isFavorite ? 'is-favorite' : ''}" data-agent="\${agent}" title="\${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                \${isFavorite ? '&#9733;' : '&#9734;'}
+              </span>
             \`;
             deptSection.appendChild(agentItem);
           });
@@ -204,7 +357,16 @@ export function getScriptContent(): string {
         // Add event listeners for checkboxes
         document.querySelectorAll('.agent-checkbox').forEach(checkbox => {
           checkbox.onchange = () => {
+            const agentId = checkbox.dataset.agent;
+            if (checkbox.checked) {
+              if (!selectedAgents.includes(agentId)) {
+                selectedAgents.push(agentId);
+              }
+            } else {
+              selectedAgents = selectedAgents.filter(id => id !== agentId);
+            }
             updateSelectAllCheckbox(checkbox.dataset.dept);
+            renderFavorites();
             updateSummary();
           };
         });
@@ -220,15 +382,54 @@ export function getScriptContent(): string {
           };
         });
 
+        // Add click handlers for favorite buttons
+        document.querySelectorAll('.agent-favorite-btn').forEach(btn => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            const agentId = btn.dataset.agent;
+            vscode.postMessage({
+              command: 'toggleFavorite',
+              data: { agentId: agentId }
+            });
+          };
+        });
+
+        // Select all checkbox handlers
         document.querySelectorAll('.select-all-checkbox').forEach(checkbox => {
           checkbox.onchange = function() {
             const deptId = this.dataset.dept;
             const checked = this.checked;
             document.querySelectorAll(\`.agent-checkbox[data-dept="\${deptId}"]\`).forEach(cb => {
               cb.checked = checked;
+              const agentId = cb.dataset.agent;
+              if (checked) {
+                if (!selectedAgents.includes(agentId)) {
+                  selectedAgents.push(agentId);
+                }
+              } else {
+                selectedAgents = selectedAgents.filter(id => id !== agentId);
+              }
             });
+            renderFavorites();
             updateSummary();
           };
+
+          // Update initial state
+          updateSelectAllCheckbox(checkbox.dataset.dept);
+        });
+
+        // Make select-all labels clickable
+        document.querySelectorAll('.select-all-item').forEach(item => {
+          const label = item.querySelector('span');
+          if (label) {
+            label.onclick = () => {
+              const checkbox = item.querySelector('.select-all-checkbox');
+              if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                checkbox.onchange();
+              }
+            };
+          }
         });
 
         updateSummary();
@@ -240,7 +441,7 @@ export function getScriptContent(): string {
         const selectAllCheckbox = document.getElementById(\`select-all-\${deptId}\`);
 
         if (selectAllCheckbox) {
-          selectAllCheckbox.checked = checkedCount === allCheckboxes.length;
+          selectAllCheckbox.checked = checkedCount === allCheckboxes.length && allCheckboxes.length > 0;
           selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
         }
       }
@@ -249,8 +450,7 @@ export function getScriptContent(): string {
         const folder = document.getElementById('folderInput').value ||
                       tools.find(t => t.id === selectedTool).folder;
 
-        const checkedAgents = Array.from(document.querySelectorAll('.agent-checkbox:checked'));
-        const totalAgents = checkedAgents.length;
+        const totalAgents = selectedAgents.length;
 
         const deptNames = Array.from(selectedDepartments)
           .map(id => departments[id]?.name)
@@ -289,12 +489,18 @@ export function getScriptContent(): string {
         const folder = document.getElementById('folderInput').value ||
                       tools.find(t => t.id === selectedTool).folder;
 
-        const checkedAgents = Array.from(document.querySelectorAll('.agent-checkbox:checked'));
-        const agentPaths = checkedAgents.map(cb =>
-          \`\${cb.dataset.dept}/\${cb.dataset.agent}\`
-        );
+        // Build agent paths from selectedAgents
+        const agentPaths = selectedAgents.map(agentId => {
+          // Find the department for this agent
+          for (const [deptId, dept] of Object.entries(departments)) {
+            if (dept.agents && dept.agents.includes(agentId)) {
+              return \`\${deptId}/\${agentId}\`;
+            }
+          }
+          return null;
+        }).filter(Boolean);
 
-        const selectedDepts = [...new Set(checkedAgents.map(cb => cb.dataset.dept))];
+        const selectedDepts = [...new Set(agentPaths.map(path => path.split('/')[0]))];
 
         if (agentPaths.length === 0) {
           return;
