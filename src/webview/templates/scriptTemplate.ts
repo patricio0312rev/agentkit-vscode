@@ -160,6 +160,9 @@ export function getScriptContent(): string {
         } else if (message.command === 'favoritesData') {
           favoriteAgents = message.data || [];
           renderFavorites();
+          if (selectedDepartments.size > 0) {
+            renderAgentsList();
+          }
         } else if (message.command === 'installComplete') {
           // Handle install complete
         }
@@ -426,7 +429,8 @@ export function getScriptContent(): string {
               const checkbox = item.querySelector('.select-all-checkbox');
               if (checkbox) {
                 checkbox.checked = !checkbox.checked;
-                checkbox.onchange();
+                // Dispatch a proper change event to trigger the handler with correct context
+                checkbox.dispatchEvent(new Event('change'));
               }
             };
           }
