@@ -9,7 +9,9 @@ export const COMMANDS = {
   UPDATE_AGENTS: 'agentkit.updateAgents',
   REMOVE_AGENTS: 'agentkit.removeAgents',
   VIEW_AGENT: 'agentkit.viewAgent',
-  OPEN_SETTINGS: 'agentkit.openSettings'
+  OPEN_SETTINGS: 'agentkit.openSettings',
+  PREVIEW_AGENT: 'agentkit.previewAgent',
+  TOGGLE_FAVORITE: 'agentkit.toggleFavorite'
 } as const;
 
 export const CONFIG_KEYS = {
@@ -17,7 +19,8 @@ export const CONFIG_KEYS = {
   DEFAULT_FOLDER: 'agentkit.defaultFolder',
   AUTO_REFRESH: 'agentkit.autoRefresh',
   SHOW_WELCOME: 'agentkit.showWelcome',
-  DEFAULT_DEPARTMENTS: 'agentkit.defaultDepartments'
+  DEFAULT_DEPARTMENTS: 'agentkit.defaultDepartments',
+  FAVORITE_AGENTS: 'agentkit.favoriteAgents'
 } as const;
 
 export const TREE_VIEW_IDS = {
