@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { AgentKitService } from '../services/AgentKitService';
 import { FileSystemService } from '../services/FileSystemService';
+import { ConfigService } from '../services/ConfigService';
 import { logger } from '../utils/logger';
 import { getWebviewContent } from './webviewContent';
 
@@ -11,8 +12,9 @@ export class AgentKitPanel {
   private _disposables: vscode.Disposable[] = [];
   private agentKitService: AgentKitService;
   private fileSystemService: FileSystemService;
+  private configService: ConfigService;
 
-  public static createOrShow(extensionUri: vscode.Uri) {
+  public static createOrShow(extensionUri: vscode.Uri, configService?: ConfigService) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
@@ -32,14 +34,15 @@ export class AgentKitPanel {
       }
     );
 
-    AgentKitPanel.currentPanel = new AgentKitPanel(panel, extensionUri);
+    AgentKitPanel.currentPanel = new AgentKitPanel(panel, extensionUri, configService);
   }
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, configService?: ConfigService) {
     this._panel = panel;
     this._extensionUri = extensionUri;
     this.agentKitService = new AgentKitService();
     this.fileSystemService = new FileSystemService();
+    this.configService = configService || new ConfigService();
 
     this._panel.webview.html = getWebviewContent();
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -52,6 +55,12 @@ export class AgentKitPanel {
             break;
           case 'getDepartments':
             await this.handleGetDepartments();
+            break;
+          case 'getFavorites':
+            await this.handleGetFavorites();
+            break;
+          case 'toggleFavorite':
+            await this.handleToggleFavorite(message.data);
             break;
           case 'cancel':
             this._panel.dispose();
@@ -72,6 +81,30 @@ export class AgentKitPanel {
       });
     } catch (error: any) {
       logger.error('Error getting departments', error);
+    }
+  }
+
+  private async handleGetFavorites() {
+    try {
+      const favorites = this.configService.getFavoriteAgents();
+      this._panel.webview.postMessage({
+        command: 'favoritesData',
+        data: favorites
+      });
+    } catch (error: any) {
+      logger.error('Error getting favorites', error);
+    }
+  }
+
+  private async handleToggleFavorite(data: { agentId: string }) {
+    try {
+      await this.configService.toggleFavoriteAgent(data.agentId);
+      // Refresh favorites in webview
+      await this.handleGetFavorites();
+      // Refresh the available agents tree view
+      vscode.commands.executeCommand('agentkit.refreshAgents');
+    } catch (error: any) {
+      logger.error('Error toggling favorite', error);
     }
   }
 
@@ -101,33 +134,33 @@ export class AgentKitPanel {
             stack: [],
             model
           };
-  
+
           progress.report({ increment: 30, message: 'Generating agents...' });
-  
+
           await this.agentKitService.generateAgents(config, workspaceFolder.fsPath);
-  
+
           progress.report({ increment: 100 });
         }
       );
-  
+
       // Show toast notification that auto-dismisses after 3 seconds
       const action = await Promise.race([
         vscode.window.showInformationMessage(
-          `✅ Installed ${agents.length} agents successfully!`,
+          `Installed ${agents.length} agents successfully!`,
           'Open Folder'
         ),
         new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), 3000))
       ]);
-  
+
       if (action === 'Open Folder') {
         await this.fileSystemService.revealInExplorer(
           vscode.Uri.joinPath(workspaceFolder, folder).fsPath
         );
       }
-  
+
       this._panel.webview.postMessage({ command: 'installComplete' });
       vscode.commands.executeCommand('agentkit.refreshAgents');
-  
+
     } catch (error: any) {
       logger.error('Error installing agents', error);
       vscode.window.showErrorMessage(`AgentKit Error: ${error.message}`);
