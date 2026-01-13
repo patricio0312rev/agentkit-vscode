@@ -67,6 +67,15 @@
       {
         "command": "agentkit.openSettings",
         "title": "AgentKit: Open Settings"
+      },
+      {
+        "command": "agentkit.previewAgent",
+        "title": "AgentKit: Preview Agent"
+      },
+      {
+        "command": "agentkit.toggleFavorite",
+        "title": "Toggle Favorite",
+        "icon": "$(star)"
       }
     ],
     "viewsContainers": {
@@ -154,6 +163,26 @@
         },
         {
           "command": "agentkit.viewAgent"
+        },
+        {
+          "command": "agentkit.toggleFavorite",
+          "when": "false"
+        },
+        {
+          "command": "agentkit.previewAgent",
+          "when": "false"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "agentkit.toggleFavorite",
+          "when": "view == agentkit-available && viewItem =~ /^agent/",
+          "group": "inline"
+        },
+        {
+          "command": "agentkit.toggleFavorite",
+          "when": "view == agentkit-available && viewItem =~ /^agent|^favorite-agent/",
+          "group": "1_favorites@1"
         }
       ]
     },
@@ -213,6 +242,14 @@
             "design"
           ],
           "description": "Default departments to select"
+        },
+        "agentkit.favoriteAgents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "List of favorite agent IDs"
         }
       }
     }
