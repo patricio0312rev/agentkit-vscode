@@ -8,15 +8,6 @@ export const layout = `<div class="container">
     <button id="clearSearchBtn" class="search-clear" style="display: none;">Clear</button>
   </div>
 
-  <!-- Favorites Section -->
-  <div class="favorites-section" id="favoritesSection" style="display: none;">
-    <div class="favorites-header">
-      <span class="favorites-icon">⭐</span>
-      <span class="favorites-title">Favorites</span>
-    </div>
-    <div class="favorites-grid" id="favoritesGrid"></div>
-  </div>
-
   <!-- Step 1: Select Tool -->
   <div class="step">
     <div class="step-header">
@@ -42,6 +33,15 @@ export const layout = `<div class="container">
       <div class="step-title">Select Departments</div>
     </div>
     <div class="department-grid" id="departmentGrid"></div>
+  </div>
+
+  <!-- Favorites Section -->
+  <div class="favorites-section" id="favoritesSection" style="display: none;">
+    <div class="favorites-header">
+      <span class="favorites-icon">&#9733;</span>
+      <span class="favorites-title">Favorites</span>
+    </div>
+    <div class="favorites-grid" id="favoritesGrid"></div>
   </div>
 
   <!-- Step 4: Select Agents -->
