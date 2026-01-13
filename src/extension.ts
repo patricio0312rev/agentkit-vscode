@@ -5,7 +5,7 @@ import { quickInitCommand } from './commands/quickPick';
 import { refreshAgentsCommand } from './commands/refreshAgents';
 import { updateAgentsCommand } from './commands/updateAgents';
 import { removeAgentsCommand } from './commands/removeAgents';
-import { previewAgentCommand } from './commands/previewAgent';
+import { previewAgentCommand, setExtensionPath } from './commands/previewAgent';
 import { toggleFavoriteCommand } from './commands/toggleFavorite';
 import { InstalledAgentsProvider } from './providers/InstalledAgentsProvider';
 import { AvailableAgentsProvider } from './providers/AvailableAgentsProvider';
@@ -16,6 +16,9 @@ import { COMMANDS, TREE_VIEW_IDS, GLOBAL_STATE_KEYS } from './utils/constants';
 import path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
+  // Set extension path for preview command
+  setExtensionPath(context.extensionPath);
+
   const configService = new ConfigService();
   const fileSystemService = new FileSystemService();
 
